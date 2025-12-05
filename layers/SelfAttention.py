@@ -10,9 +10,11 @@ class Attention(nn.Module):
         super(Attention, self).__init__()
         self.softmax = nn.Softmax(dim = -1)
 
-    def forward(self, q, k, v):
+    def forward(self, q, k, v, mask=None):
         d_k = k.shape[-1]
         score = torch.matmul(q, k.transpose(-1, -2)) / (d_k ** 0.5)
+        if mask is not None:
+            score = score.masked_fill(mask==0, float('-inf'))
         score = self.softmax(score)
         return torch.matmul(score, v)
 
@@ -26,10 +28,14 @@ class MultiHeadAttention(nn.Module):
         self.w_v = nn.Linear(d_model, d_model)
         self.w_concat = nn.Linear(d_model, d_model)
 
-    def forward(self, q, k, v):
+    def forward(self, q, k, v, mask=None):
         q, k, v = self.w_q(q), self.w_k(k), self.w_v(v)
         q, k, v = self.split(q), self.split(k), self.split(v)
-        out = self.attention(q, k, v)
+
+        if mask is not None:
+            mask = mask.unsqueeze(1).repeat(1, self.n_head, 1, 1)
+
+        out = self.attention(q, k, v, mask)
         out = self.concat(out)
 
         return self.w_concat(out)

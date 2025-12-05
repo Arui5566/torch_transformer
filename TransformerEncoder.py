@@ -1,5 +1,5 @@
 from layers.Embed import TokenEmbedding, PositionEmbedding
-from TransformerBlock import TransformerBlock
+from blocks.EncoderBlock import TransformerBlock
 from torch import nn
 
 class TransformerEncoder(nn.Module):
