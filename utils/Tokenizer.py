@@ -1,3 +1,5 @@
+import json
+
 class Tokenizer:
     def __init__(self):
         self.pad = 0
@@ -20,5 +22,22 @@ class Tokenizer:
         ids = [self.bos] + [self.tok2idx.get(ch, self.unk) for ch in text] + [self.eos]
         return ids
 
-    def decoder(self, ids):
+    def decode(self, ids):
         return ''.join([self.idx2tok[i] for i in ids if i > 3])
+
+    def save(self, path):
+        data = {
+            "tok2idx": self.tok2idx,
+            "idx2tok": self.idx2tok
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    @staticmethod
+    def load(path):
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        tok = Tokenizer()
+        tok.tok2idx = data["tok2idx"]
+        tok.idx2tok = data["idx2tok"]
+        return tok
