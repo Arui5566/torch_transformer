@@ -2,3 +2,7 @@
 __pycache__/
 layers/__pycache__/
 main.py
+predict.py
+texts.py
+tokenizer.json
+best_model.pt
